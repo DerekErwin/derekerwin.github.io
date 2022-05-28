@@ -215,7 +215,7 @@
    function drawSpeed() {
    	ctx2.font = "16px Arial";
    	ctx2.fillStyle = "#0095DD";
-   	ctx2.fillText("Speed: "+dx.toPrecision(4), (canvas.width/5)*3-65, 20);
+   	ctx2.fillText("Speed: "+Math.abs(dx.toPrecision(3)), (canvas.width/5)*3-65, 20);
    }
    function drawLives() {
    	ctx2.font = "16px Arial";
