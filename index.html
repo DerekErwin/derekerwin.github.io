@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
 <body>
-<h1>Hello World</h1>
+<h1>Hello!</h1>
 <p>I'm hosted with GitHub Pages.</p>
-
+<p>Breakout:</p>
+<canvas id="myCanvas2" width="680" height="520"></canvas>
+<p>Random Colors:</p>
 <canvas id="myCanvas" width="680" height="520"></canvas>
 
 </body>
@@ -12,7 +14,7 @@
 <script>
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
-
+var timer = 0;
 
 function RGB2Color(r,g,b)
 {
@@ -41,6 +43,7 @@ function makeColorGradient(frequency1, frequency2, frequency3, phase1, phase2, p
 		}
 }
 
+document.write("<p>Color Gradients:</p>");
 makeColorGradient(.3,.3,.3,0,2,4);
 document.write("<br>");
 makeColorGradient(.3,.3,.3,0,128,127);
@@ -51,13 +54,270 @@ document.write("<br>");
 ctx.fillStyle = RGB2Color(Math.floor(Math.random() * 255),Math.floor(Math.random() * 255),Math.floor(Math.random() * 255));
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    function draw() {        
+function draw() {      
+	if (timer == 20) {
+		//console.log("Change Color");
 		ctx.fillStyle = RGB2Color(Math.floor(Math.random() * 255),Math.floor(Math.random() * 255),Math.floor(Math.random() * 255));
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-        requestAnimationFrame(draw);
-    }
+		timer++;
+	}else if (timer > 20) {
+		//console.log("Reset Timer");
+		timer = 0;
+	}else{
+		//console.log("Add 1 to timer");
+		timer++;
+	}
+	requestAnimationFrame(draw);
+}
 
-    draw();
 
+var canvas = document.getElementById("myCanvas2");
+var ctx2 = canvas.getContext("2d");
+var colorloop = 0;
+var ballRadius = 10;
+var color1 = 0;
+var color2 = 149;
+var color3 = 221;
+var color = 0;
+var x = canvas.width/2;
+var y = canvas.height-30;
+var dx = 2;
+var dy = -2;
+var paddleHeight = 10;
+var paddleWidth = 75;
+var paddleX = (canvas.width-paddleWidth)/2;
+var rightPressed = false;
+var leftPressed = false;
+var brickRowCount = 16;
+var brickColumnCount = 20;
+var brickWidth = 30;
+var brickHeight = 10;
+var brickPadding = 10;
+var brickOffsetTop = 30;
+var brickOffsetLeft = 30;
+var score = 0;
+var lives = 3;
+
+var bricks = [];
+for(var c=0; c<brickColumnCount; c++) {
+	bricks[c] = [];
+	for(var r=0; r<brickRowCount; r++) {
+		bricks[c][r] = { x: 0, y: 0, status: 1 };
+	}
+}
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+document.addEventListener("mousemove", mouseMoveHandler, false);
+
+function getRandomInt(max) {
+	return Math.floor(Math.random() * max);
+}
+
+function keyDownHandler(e) {
+	if(e.code  == "ArrowRight") {
+		rightPressed = true;
+	}
+	else if(e.code == 'ArrowLeft') {
+		leftPressed = true;
+	}
+}
+function keyUpHandler(e) {
+	if(e.code == 'ArrowRight') {
+		rightPressed = false;
+	}
+	else if(e.code == 'ArrowLeft') {
+		leftPressed = false;
+	}
+}
+function mouseMoveHandler(e) {
+	//var relativeX = e.clientX - canvas.offsetLeft;
+	//if(relativeX > 0 && relativeX < canvas.width) {
+	//    paddleX = relativeX - paddleWidth/2;
+	//}
+}
+function collisionDetection() {
+	for(var c=0; c<brickColumnCount; c++) {
+		for(var r=0; r<brickRowCount; r++) {
+			var b = bricks[c][r];
+			if(b.status == 1) {
+				if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+					if(dx < 0) {
+						dx = dx - 0.02;
+					}else{
+						dx = dx + 0.02;
+					}
+					if(dy < 0) {
+						dy = dy - 0.02;
+					}else{
+						dy = dy + 0.02;
+					}
+					dy = -dy;
+					b.status = 0;
+					score++;
+					if(score == brickRowCount*brickColumnCount) {
+						alert("YOU WIN, CONGRATS!");
+						document.location.reload();
+					}
+				}
+			}
+		}
+	}
+}
+
+function drawBall() {
+	ctx2.beginPath();
+	ctx2.arc(x, y, ballRadius, 0, Math.PI*2);
+	ctx2.fillStyle = "#0095DD";
+	ctx2.fill();
+	ctx2.closePath();
+}
+function drawPaddle() {
+	ctx2.beginPath();
+	ctx2.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+	ctx2.fillStyle = "#0095DD";
+	ctx2.fill();
+	ctx2.closePath();
+}
+function drawBricks() {
+	for(var c=0; c<brickColumnCount; c++) {
+		for(var r=0; r<brickRowCount; r++) {
+			if(bricks[c][r].status == 1) {
+				var brickX = (r*(brickWidth+brickPadding))+brickOffsetLeft;
+				var brickY = (c*(brickHeight+brickPadding))+brickOffsetTop;
+				bricks[c][r].x = brickX;
+				bricks[c][r].y = brickY;
+				ctx2.beginPath();
+				ctx2.rect(brickX, brickY, brickWidth, brickHeight);
+				ctx2.fillStyle = "#" + color1.toString(16).padStart(2,0) + color2.toString(16).padStart(2,0) + color3.toString(16).padStart(2,0)
+				color = "#" + color1.toString(16).padStart(2,0) + color2.toString(16).padStart(2,0) + color3.toString(16).padStart(2,0)
+				ctx2.fill();
+				ctx2.closePath();
+			}
+		}
+	}
+}
+function drawColor() {
+	ctx2.font = "16px Arial";
+	ctx2.fillStyle = "#0095DD";
+	ctx2.fillText("Color: "+color.toString(16).padStart(6,0), (canvas.width/5)*2-65, 20);
+}
+function drawScore() {
+	ctx2.font = "16px Arial";
+	ctx2.fillStyle = "#0095DD";
+	ctx2.fillText("Score: "+score, (canvas.width/4)-65, 20);
+}
+function drawSpeed() {
+	ctx2.font = "16px Arial";
+	ctx2.fillStyle = "#0095DD";
+	ctx2.fillText("Speed: "+dx.toPrecision(4), (canvas.width/5)*3-65, 20);
+}
+function drawLives() {
+	ctx2.font = "16px Arial";
+	ctx2.fillStyle = "#0095DD";
+	ctx2.fillText("Lives: "+lives, (canvas.width/5)*4-65, 20);
+}
+
+function draw2() {
+	ctx2.clearRect(0, 0, canvas.width, canvas.height);
+	drawColor();
+	drawBricks();
+	drawBall();
+	drawPaddle();
+	drawScore();
+	drawLives();
+	drawSpeed();
+	collisionDetection();
+
+	if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+		dx = -dx;
+	}
+	if(y + dy < ballRadius) {
+		dy = -dy;
+	}
+	else if(y + dy > canvas.height-ballRadius) {
+		if(x > paddleX && x < paddleX + paddleWidth) {
+			dy = -dy;
+			if(getRandomInt(2) == 1){
+				dx = Math.abs(dx) + 0.1;
+				dx = -dx;
+			}else{
+				dx = Math.abs(dx) - 0.1;
+			}
+		}
+		else {
+			lives--;
+			if(!lives) {
+				alert("GAME OVER");
+				document.location.reload();
+			}
+			else {
+				x = canvas.width/2;
+				y = canvas.height-30;
+				if(dy > 0){
+					dy = -dy;
+				}
+				dx = 2;
+				dy = -2;
+				paddleX = (canvas.width-paddleWidth)/2;
+			}
+		}
+	}
+
+	if(rightPressed && paddleX < canvas.width-paddleWidth) {
+		paddleX += 7;
+	}
+	else if(leftPressed && paddleX > 0) {
+		paddleX -= 7;
+	}
+	
+	paddleX = x - 40;
+	var bspeed = 5;
+	
+//		do {
+//			for(var c=0; c<brickColumnCount; c++) {
+//				for(var r=0; r<brickRowCount; r++) {
+//					var b = bricks[c][r];
+//					if(b.status == 1) {
+//						if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+//							//console.log("True")
+//							bspeed = 0;
+//						}else{
+//							//x += 1;
+//							//y += 1;
+//							bspeed - 1;
+//						}
+//					}
+//				}
+//			}
+//		}
+//		while (bspeed > 1)
+	var randomInt = getRandomInt(3);
+	if (randomInt == 2){
+		if (getRandomInt(2) == 1 & color1 <= 250){
+			color1 += 5;
+		}else if(color1 >= 5){
+			color1 -= 5;
+		}
+	}else if(randomInt == 1){
+		if (getRandomInt(2) == 1 & color2 <= 250){
+			color2 += 5;
+		}else if(color2 >= 5){
+			color2 -= 5;
+		}
+	}else {
+		if (getRandomInt(2) == 1 & color3 <= 250){
+			color3 += 5;
+		}else if(color3 >= 5){
+			color3 -= 5;
+		}
+	}
+	x += dx;
+	y += dy;
+	requestAnimationFrame(draw2);
+}
+
+draw();
+draw2();
 
 </script>
