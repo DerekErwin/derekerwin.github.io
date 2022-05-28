@@ -15,6 +15,7 @@
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 var timer = 0;
+var timerMax = 200;
 
 function RGB2Color(r,g,b)
 {
@@ -27,6 +28,11 @@ function byte2Hex(n)
 	return String(nybHexString.substr((n >> 4) & 0x0F,1)) + nybHexString.substr(n & 0x0F,1);
 }
 
+function drawTimer() {
+	ctx.font = "16px Arial";
+	ctx.fillStyle = "#0095DD";
+	ctx.fillText("Time to color change: "+(timerMax - timer), 20, 20);
+}
 
 function makeColorGradient(frequency1, frequency2, frequency3, phase1, phase2, phase3, center, width, len)
 {
@@ -54,13 +60,15 @@ document.write("<br>");
 ctx.fillStyle = RGB2Color(Math.floor(Math.random() * 255),Math.floor(Math.random() * 255),Math.floor(Math.random() * 255));
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-function draw() {      
-	if (timer == 20) {
+function draw() {
+	ctx.clearRect(0, 0, canvas.width, 30);
+	drawTimer();
+	if (timer == timerMax) {
 		//console.log("Change Color");
 		ctx.fillStyle = RGB2Color(Math.floor(Math.random() * 255),Math.floor(Math.random() * 255),Math.floor(Math.random() * 255));
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.fillRect(0, 30, canvas.width, canvas.height);
 		timer++;
-	}else if (timer > 20) {
+	}else if (timer > timerMax) {
 		//console.log("Reset Timer");
 		timer = 0;
 	}else{
